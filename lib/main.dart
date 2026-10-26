@@ -16,50 +16,461 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.teal,
         useMaterial3: true,
       ),
-      home: const HomePageWidget(),
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => const LoginPageWidget(),
+        '/signup': (context) => const SignUpPageWidget(),
+        '/home': (context) => const HomePageWidget(),
+        '/profile': (context) => const ProfilePageWidget(),
+        '/activityLog': (context) => const ActivityLogPageWidget(),
+        '/analytics': (context) => const AnalyticsPageWidget(),
+        '/settings': (context) => const SettingsPageWidget(),
+        '/updatePassword': (context) => const UpdatePasswordPageWidget(),
+      },
     );
   }
 }
 
-class HomePageWidget extends StatefulWidget {
+// ==================== LOGIN PAGE ====================
+class LoginPageWidget extends StatefulWidget {
+  const LoginPageWidget({super.key});
+
+  @override
+  State<LoginPageWidget> createState() => _LoginPageWidgetState();
+}
+
+class _LoginPageWidgetState extends State<LoginPageWidget> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _passwordVisibility = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF1F4F8),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Al-haras Compliance',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.teal),
+                ),
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: 300,
+                  child: TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      labelText: 'Email',
+                      hintText: 'Enter your email',
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.teal, width: 1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.teal, width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: 300,
+                  child: TextFormField(
+                    controller: _passwordController,
+                    obscureText: !_passwordVisibility,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      labelText: 'Password',
+                      hintText: 'Enter your password',
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.teal, width: 1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.teal, width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: InkWell(
+                        onTap: () => setState(() => _passwordVisibility = !_passwordVisibility),
+                        child: Icon(
+                          _passwordVisibility ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: 100,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/home');
+                    },
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                InkWell(
+                  onTap: () => Navigator.pushNamed(context, '/signup'),
+                  child: const Text(
+                    "Don't have an account? Sign Up.",
+                    style: TextStyle(color: Colors.teal, fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ==================== SIGN UP PAGE ====================
+class SignUpPageWidget extends StatelessWidget {
+  const SignUpPageWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Sign Up'), backgroundColor: const Color(0xFF0FD1B2)),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              decoration: InputDecoration(labelText: 'Email', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              obscureText: true,
+              decoration: InputDecoration(labelText: 'Password', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Create Account & Back to Login', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ==================== HOME PAGE ====================
+class HomePageWidget extends StatelessWidget {
   const HomePageWidget({super.key});
 
   @override
-  State<HomePageWidget> createState() => _HomePageWidgetState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF1F4F8),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Welcome back, Admin User',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  InkWell(
+                    onTap: () => Navigator.pushReplacementNamed(context, '/login'),
+                    child: const Icon(Icons.logout, size: 24),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.2,
+                  children: [
+                    _buildMenuCard(context, Icons.person, 'My Profile', '/profile'),
+                    _buildMenuCard(context, Icons.list_sharp, 'Activity Log', '/activityLog'),
+                    _buildMenuCard(context, Icons.bar_chart, 'Analytics', '/analytics'),
+                    _buildMenuCard(context, Icons.settings_outlined, 'App Settings', '/settings'),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuCard(BuildContext context, IconData icon, String title, String routeName) {
+    return Material(
+      color: const Color(0xFF4EE2C0),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          Navigator.pushNamed(context, routeName);
+        },
+        child: Container(
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 32, color: Colors.black87),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _HomePageWidgetState extends State<HomePageWidget> {
+// ==================== PROFILE PAGE ====================
+class ProfilePageWidget extends StatelessWidget {
+  const ProfilePageWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F4F8),
       appBar: AppBar(
-        title: const Text('Al-haras'),
-        backgroundColor: const Color(0xFF0FD1B2),
-        elevation: 0,
+        backgroundColor: const Color(0xFF1A1F26),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('Profile', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+        elevation: 2,
+      ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: Center(
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                  child: ClipOval(
+                    child: Image.network('https://picsum.photos/seed/633/600', fit: BoxFit.cover),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Center(child: Text('admin@alharas.com', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500))),
+            const SizedBox(height: 8),
+            const Center(child: Text('UID: user_admin_001', style: TextStyle(fontSize: 14, color: Colors.grey))),
+            const SizedBox(height: 32),
+            Center(
+              child: SizedBox(
+                width: 160,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+                  onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+                  icon: const Icon(Icons.logout, color: Colors.white),
+                  label: const Text('Log Out', style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ==================== ACTIVITY LOG PAGE ====================
+class ActivityLogPageWidget extends StatelessWidget {
+  const ActivityLogPageWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Map<String, String>> mockActivities = [
+      {'title': 'Security Policy Review', 'createdAt': 'Today, 10:45 AM'},
+      {'title': 'Access Control Audit', 'createdAt': 'Yesterday, 04:15 PM'},
+    ];
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF1F4F8),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1A1F26),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('View your Activities', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+        elevation: 2,
+      ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 24, 16, 12),
+              child: Text('Recent Activity', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: mockActivities.length,
+                itemBuilder: (context, index) {
+                  final activity = mockActivities[index];
+                  return Card(
+                    color: Colors.white,
+                    elevation: 0,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    child: ListTile(
+                      title: Text(activity['title']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      subtitle: Text(activity['createdAt']!, style: const TextStyle(color: Colors.grey)),
+                      trailing: const Icon(Icons.delete_rounded, color: Colors.grey, size: 24),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ==================== ANALYTICS PAGE ====================
+class AnalyticsPageWidget extends StatelessWidget {
+  const AnalyticsPageWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF1F4F8),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1A1F26),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('Analytics', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+        elevation: 2,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (context) => Container(
+              padding: const EdgeInsets.all(24),
+              height: 200,
+              child: const Center(child: Text('Add Activity Bottom Sheet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+            ),
+          );
+        },
+        backgroundColor: Colors.teal,
+        child: const Icon(Icons.add_rounded, color: Colors.white),
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Welcome back, Admin',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      child: const Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Total Activities', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                            SizedBox(height: 4),
+                            Text('3', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      child: const Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Active Days', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                            SizedBox(height: 4),
+                            Text('12', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
+              const Text('Activity Trends', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
               Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  children: [
-                    _buildMenuCard(context, Icons.person, 'My Profile', const ProfileScreen()),
-                    _buildMenuCard(context, Icons.list_alt, 'Activity Log', const ActivityLogScreen()),
-                    _buildMenuCard(context, Icons.bar_chart, 'Analytics', const AnalyticsScreen()),
-                    _buildMenuCard(context, Icons.settings, 'App Settings', const AppSettingsScreen()),
-                  ],
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Center(
+                    child: Text('Compliance Analytics Chart Placeholder', style: TextStyle(color: Colors.grey)),
+                  ),
                 ),
               ),
             ],
@@ -68,205 +479,164 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       ),
     );
   }
+}
 
-  Widget _buildMenuCard(BuildContext context, IconData icon, String title, Widget destinationPage) {
-    return Material(
-      color: const Color(0xFF4EE2C0),
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => destinationPage),
-          );
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: Colors.black87),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
+// ==================== SETTINGS PAGE ====================
+class SettingsPageWidget extends StatelessWidget {
+  const SettingsPageWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF1F4F8),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1A1F26),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('Settings', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+        elevation: 2,
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(bottom: 16),
+                child: Text(
+                  'Account Settings',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-          ],
+              Card(
+                elevation: 0,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                child: ListTile(
+                  title: const Text('admin@alharas.com', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  subtitle: const Text('Account Profile', style: TextStyle(color: Colors.grey)),
+                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 18, color: Colors.grey),
+                  onTap: () => Navigator.pushNamed(context, '/profile'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Card(
+                elevation: 0,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                child: ListTile(
+                  leading: const Icon(Icons.lock, color: Colors.black87),
+                  title: const Text('Change Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  subtitle: const Text('Update your credentials', style: TextStyle(color: Colors.grey)),
+                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 18, color: Colors.grey),
+                  onTap: () => Navigator.pushNamed(context, '/updatePassword'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Card(
+                elevation: 0,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                child: ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.redAccent),
+                  title: const Text('Log Out', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.redAccent)),
+                  subtitle: const Text('Sign out of your session', style: TextStyle(color: Colors.grey)),
+                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 18, color: Colors.grey),
+                  onTap: () => Navigator.pushReplacementNamed(context, '/login'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// 1. Profile Screen
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+// ==================== UPDATE PASSWORD PAGE ====================
+class UpdatePasswordPageWidget extends StatefulWidget {
+  const UpdatePasswordPageWidget({super.key});
+
+  @override
+  State<UpdatePasswordPageWidget> createState() => _UpdatePasswordPageWidgetState();
+}
+
+class _UpdatePasswordPageWidgetState extends State<UpdatePasswordPageWidget> {
+  final TextEditingController _passwordController = TextEditingController();
+  bool _passwordVisibility = false;
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('My Profile'), backgroundColor: const Color(0xFF0FD1B2)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text('User Profile Details', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
-            ListTile(leading: Icon(Icons.person), title: Text('Name'), subtitle: Text('Admin User')),
-            ListTile(leading: Icon(Icons.badge), title: Text('Role'), subtitle: Text('Compliance Officer')),
-            ListTile(leading: Icon(Icons.email), title: Text('Email'), subtitle: Text('admin@alharas.com')),
-          ],
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF1F4F8),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF1A1F26),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text('Change Password', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+          elevation: 2,
         ),
-      ),
-    );
-  }
-}
-
-// 2. Activity Log Screen
-class ActivityLogScreen extends StatelessWidget {
-  const ActivityLogScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final logs = [
-      {'title': 'Security Policy Review', 'time': 'Today, 10:45 AM', 'status': 'Passed'},
-      {'title': 'Access Control Audit', 'time': 'Yesterday, 04:15 PM', 'status': 'Flagged'},
-      {'title': 'Data Encryption Check', 'time': 'Oct 24, 09:30 AM', 'status': 'Passed'},
-    ];
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Activity Log'), backgroundColor: const Color(0xFF0FD1B2)),
-      body: ListView.builder(
-        itemCount: logs.length,
-        padding: const EdgeInsets.all(16),
-        itemBuilder: (context, index) {
-          final log = logs[index];
-          final isPassed = log['status'] == 'Passed';
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: ListTile(
-              leading: Icon(Icons.history, color: isPassed ? Colors.teal : Colors.orange),
-              title: Text(log['title']!, style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text(log['time']!),
-              trailing: Chip(
-                label: Text(log['status']!, style: const TextStyle(color: Colors.white)),
-                backgroundColor: isPassed ? Colors.teal : Colors.deepOrange,
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-// 3. Analytics Screen
-class AnalyticsScreen extends StatelessWidget {
-  const AnalyticsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Analytics'), backgroundColor: const Color(0xFF0FD1B2)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Compliance Metrics', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            Row(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(child: _metricCard('Compliance Score', '98.2%', Colors.teal)),
-                const SizedBox(width: 12),
-                Expanded(child: _metricCard('Open Issues', '2', Colors.orange)),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: !_passwordVisibility,
+                  decoration: InputDecoration(
+                    labelText: 'New Password',
+                    hintText: 'Enter new password',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _passwordVisibility ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _passwordVisibility = !_passwordVisibility;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1A1F26),
+                    foregroundColor: Colors.tealAccent,
+                    minimumSize: const Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Password updated successfully!')),
+                    );
+                    Navigator.pushReplacementNamed(context, '/home');
+                  },
+                  child: const Text('Update Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                ),
               ],
             ),
-            const SizedBox(height: 24),
-            const Text('Audit Overview', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Center(
-                  child: Text('Chart Placeholder: Monthly Compliance Trends', style: TextStyle(color: Colors.black54)),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
-    );
-  }
-
-  Widget _metricCard(String title, String value, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color, width: 1.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-}
-
-// 4. App Settings Screen
-class AppSettingsScreen extends StatefulWidget {
-  const AppSettingsScreen({super.key});
-
-  @override
-  State<AppSettingsScreen> createState() => _AppSettingsScreenState();
-}
-
-class _AppSettingsScreenState extends State<AppSettingsScreen> {
-  bool _notificationsEnabled = true;
-  bool _darkMode = false;
-  bool _autoLock = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('App Settings'), backgroundColor: const Color(0xFF0FD1B2)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text('Preferences', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal)),
-          const SizedBox(height: 10),
-          SwitchListTile(
-            title: const Text('Push Notifications'),
-            subtitle: const Text('Receive compliance alert notifications'),
-            value: _notificationsEnabled,
-            onChanged: (val) => setState(() => _notificationsEnabled = val),
-          ),
-          SwitchListTile(
-            title: const Text('Dark Mode Theme'),
-            subtitle: const Text('Switch app appearance'),
-            value: _darkMode,
-            onChanged: (val) => setState(() => _darkMode = val),
-          ),
-          SwitchListTile(
-            title: const Text('Auto-Lock Session'),
-            subtitle: const Text('Secure app after inactivity'),
-            value: _autoLock,
-            onChanged: (val) => setState(() => _autoLock = val),
-          ),
-        ],
       ),
     );
   }
