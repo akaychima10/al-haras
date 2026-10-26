@@ -55,10 +55,30 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                   children: [
-                    _buildMenuCard(Icons.person, 'My Profile'),
-                    _buildMenuCard(Icons.list_alt, 'Activity Log'),
-                    _buildMenuCard(Icons.bar_chart, 'Analytics'),
-                    _buildMenuCard(Icons.settings, 'App Settings'),
+                    _buildMenuCard(
+                      context,
+                      Icons.person,
+                      'My Profile',
+                      const ProfileScreen(), // Navigates here when clicked!
+                    ),
+                    _buildMenuCard(
+                      context,
+                      Icons.list_alt,
+                      'Activity Log',
+                      const GenericPage(title: 'Activity Log'),
+                    ),
+                    _buildMenuCard(
+                      context,
+                      Icons.bar_chart,
+                      'Analytics',
+                      const GenericPage(title: 'Analytics'),
+                    ),
+                    _buildMenuCard(
+                      context,
+                      Icons.settings,
+                      'App Settings',
+                      const GenericPage(title: 'App Settings'),
+                    ),
                   ],
                 ),
               ),
@@ -69,18 +89,17 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     );
   }
 
-  Widget _buildMenuCard(IconData icon, String title) {
+  Widget _buildMenuCard(BuildContext context, IconData icon, String title, Widget destinationPage) {
     return Material(
       color: const Color(0xFF4EE2C0),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('$title clicked!'),
-              duration: const Duration(seconds: 1),
-            ),
+          // This performs the actual page transition
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => destinationPage),
           );
         },
         child: Column(
@@ -98,6 +117,52 @@ class _HomePageWidgetState extends State<HomePageWidget> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// A dedicated Profile Page example
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Profile'),
+        backgroundColor: const Color(0xFF0FD1B2),
+      ),
+      body: const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('User Profile Details', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text('Name: Admin User'),
+            Text('Role: Compliance Officer'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// A generic template for the other pages
+class GenericPage extends StatelessWidget {
+  final String title;
+  const GenericPage({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        backgroundColor: const Color(0xFF0FD1B2),
+      ),
+      body: Center(
+        child: Text('Welcome to $title', style: const TextStyle(fontSize: 20)),
       ),
     );
   }
