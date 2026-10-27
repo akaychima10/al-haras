@@ -4,6 +4,47 @@ void main() {
   runApp(const MyApp());
 }
 
+// ==================== CUSTOM HELPER FUNCTIONS ====================
+List<double> getNumericList(List<dynamic>? rows) {
+  if (rows == null || rows.isEmpty) {
+    return [];
+  }
+  return List<double>.generate(rows.length, (index) => (index + 1).toDouble());
+}
+
+int getUniqueActiveDays(List<dynamic>? logs) {
+  if (logs == null || logs.isEmpty) {
+    return 0;
+  }
+
+  final uniqueDates = logs
+      .where((row) => row['createdAt'] != null)
+      .map((row) {
+        final date = row['createdAt'] is DateTime 
+            ? row['createdAt'] as DateTime 
+            : DateTime.parse(row['createdAt'].toString());
+        return DateTime(date.year, date.month, date.day);
+      })
+      .toSet();
+
+  return uniqueDates.length;
+}
+
+int? calculateActiveDays(List<dynamic>? logs) {
+  if (logs == null || logs.isEmpty) return 0;
+
+  final uniqueDates = logs
+      .map((log) {
+        final createdAt = log['createdAt']?.toString();
+        if (createdAt == null) return null;
+        return createdAt.split('T')[0].split(' ')[0];
+      })
+      .where((date) => date != null)
+      .toSet();
+
+  return uniqueDates.length;
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -470,6 +511,14 @@ class AnalyticsPageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mockData = [
+      {'createdAt': '2026-10-27T10:00:00Z'},
+      {'createdAt': '2026-10-26T14:30:00Z'},
+      {'createdAt': '2026-10-26T09:15:00Z'},
+    ];
+    final numericList = getNumericList(mockData);
+    final activeDaysCount = calculateActiveDays(mockData) ?? 0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF1F4F8),
       appBar: AppBar(
@@ -509,14 +558,14 @@ class AnalyticsPageWidget extends StatelessWidget {
                     child: Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      child: const Padding(
-                        padding: EdgeInsets.all(12.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Total Activities', style: TextStyle(color: Colors.grey, fontSize: 14)),
-                            SizedBox(height: 4),
-                            Text('3', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                            const Text('Total Activities', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                            const SizedBox(height: 4),
+                            Text('${numericList.length}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -527,14 +576,14 @@ class AnalyticsPageWidget extends StatelessWidget {
                     child: Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      child: const Padding(
-                        padding: EdgeInsets.all(12.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Active Days', style: TextStyle(color: Colors.grey, fontSize: 14)),
-                            SizedBox(height: 4),
-                            Text('12', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                            const Text('Active Days', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                            const SizedBox(height: 4),
+                            Text('$activeDaysCount', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -551,8 +600,11 @@ class AnalyticsPageWidget extends StatelessWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Center(
-                    child: Text('Compliance Analytics Chart Placeholder', style: TextStyle(color: Colors.grey)),
+                  child: Center(
+                    child: Text(
+                      'Calculated Active Days: $activeDaysCount',
+                      style: const TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
                   ),
                 ),
               ),
