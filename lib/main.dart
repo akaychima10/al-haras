@@ -4,7 +4,70 @@ void main() {
   runApp(const MyApp());
 }
 
-// ==================== CUSTOM HELPER FUNCTIONS ====================
+// ==================== GLOBAL DATA STORE & STATE MANAGEMENT ====================
+class ActivityItem {
+  final String id;
+  final String title;
+  final String description;
+  final DateTime createdAt;
+
+  ActivityItem({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.createdAt,
+  });
+}
+
+class ActivityDataStore extends ChangeNotifier {
+  static final ActivityDataStore instance = ActivityDataStore._internal();
+  factory ActivityDataStore() => instance;
+  ActivityDataStore._internal();
+
+  final List<ActivityItem> _activities = [
+    ActivityItem(
+      id: '1',
+      title: 'Security Policy Review',
+      description: 'Annual review of company security policies.',
+      createdAt: DateTime.now().subtract(const Duration(hours: 7)),
+    ),
+    ActivityItem(
+      id: '2',
+      title: 'Access Control Audit',
+      description: 'Audit of user permissions and role-based access.',
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+    ),
+  ];
+
+  List<ActivityItem> get activities => List.unmodifiable(_activities);
+
+  void addActivity(String title, String description) {
+    _activities.insert(
+      0,
+      ActivityItem(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: title,
+        description: description.isEmpty ? 'No description provided' : description,
+        createdAt: DateTime.now(),
+      ),
+    );
+    notifyListeners();
+  }
+
+  void deleteActivity(String id) {
+    _activities.removeWhere((item) => item.id == id);
+    notifyListeners();
+  }
+
+  int get uniqueActiveDays {
+    final uniqueDates = _activities
+        .map((log) => DateTime(log.createdAt.year, log.createdAt.month, log.createdAt.day))
+        .toSet();
+    return uniqueDates.length;
+  }
+}
+
+// ==================== HELPER FUNCTIONS ====================
 List<double> getNumericList(List<dynamic>? rows) {
   if (rows == null || rows.isEmpty) {
     return [];
@@ -12,61 +75,34 @@ List<double> getNumericList(List<dynamic>? rows) {
   return List<double>.generate(rows.length, (index) => (index + 1).toDouble());
 }
 
-int getUniqueActiveDays(List<dynamic>? logs) {
-  if (logs == null || logs.isEmpty) {
-    return 0;
-  }
-
-  final uniqueDates = logs
-      .where((row) => row['createdAt'] != null)
-      .map((row) {
-        final date = row['createdAt'] is DateTime 
-            ? row['createdAt'] as DateTime 
-            : DateTime.parse(row['createdAt'].toString());
-        return DateTime(date.year, date.month, date.day);
-      })
-      .toSet();
-
-  return uniqueDates.length;
-}
-
-int? calculateActiveDays(List<dynamic>? logs) {
-  if (logs == null || logs.isEmpty) return 0;
-
-  final uniqueDates = logs
-      .map((log) {
-        final createdAt = log['createdAt']?.toString();
-        if (createdAt == null) return null;
-        return createdAt.split('T')[0].split(' ')[0];
-      })
-      .where((date) => date != null)
-      .toSet();
-
-  return uniqueDates.length;
-}
-
+// ==================== MAIN APP ====================
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Al-haras',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        useMaterial3: true,
-      ),
-      initialRoute: '/login',
-      routes: {
-        '/login': (context) => const LoginPageWidget(),
-        '/signup': (context) => const SignUpPageWidget(),
-        '/home': (context) => const HomePageWidget(),
-        '/profile': (context) => const ProfilePageWidget(),
-        '/activityLog': (context) => const ActivityLogPageWidget(),
-        '/analytics': (context) => const AnalyticsPageWidget(),
-        '/settings': (context) => const SettingsPageWidget(),
-        '/updatePassword': (context) => const UpdatePasswordPageWidget(),
+    return AnimatedBuilder(
+      animation: ActivityDataStore.instance,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'Al-haras',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primarySwatch: Colors.teal,
+            useMaterial3: true,
+          ),
+          initialRoute: '/login',
+          routes: {
+            '/login': (context) => const LoginPageWidget(),
+            '/signup': (context) => const SignUpPageWidget(),
+            '/home': (context) => const HomePageWidget(),
+            '/profile': (context) => const ProfilePageWidget(),
+            '/activityLog': (context) => const ActivityLogPageWidget(),
+            '/analytics': (context) => const AnalyticsPageWidget(),
+            '/settings': (context) => const SettingsPageWidget(),
+            '/updatePassword': (context) => const UpdatePasswordPageWidget(),
+          },
+        );
       },
     );
   }
@@ -366,16 +402,29 @@ class ProfilePageWidget extends StatelessWidget {
   }
 }
 
-// ==================== ACTIVITY LOG PAGE ====================
+// ==================== ACTIVITY LOG PAGE (WITH FUNCTIONAL DELETE) ====================
 class ActivityLogPageWidget extends StatelessWidget {
   const ActivityLogPageWidget({super.key});
 
+  String _formatTimestamp(DateTime dt) {
+    final now = DateTime.now();
+    if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
+      final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+      final period = dt.hour >= 12 ? 'PM' : 'AM';
+      final minute = dt.minute.toString().padLeft(2, '0');
+      return 'Today, $hour:$minute $period';
+    } else {
+      final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+      final period = dt.hour >= 12 ? 'PM' : 'AM';
+      final minute = dt.minute.toString().padLeft(2, '0');
+      return 'Yesterday, $hour:$minute $period';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> mockActivities = [
-      {'title': 'Security Policy Review', 'createdAt': 'Today, 10:45 AM'},
-      {'title': 'Access Control Audit', 'createdAt': 'Yesterday, 04:15 PM'},
-    ];
+    final store = ActivityDataStore.instance;
+    final activities = store.activities;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF1F4F8),
@@ -397,24 +446,39 @@ class ActivityLogPageWidget extends StatelessWidget {
               child: Text('Recent Activity', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             ),
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: mockActivities.length,
-                itemBuilder: (context, index) {
-                  final activity = mockActivities[index];
-                  return Card(
-                    color: Colors.white,
-                    elevation: 0,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    child: ListTile(
-                      title: Text(activity['title']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      subtitle: Text(activity['createdAt']!, style: const TextStyle(color: Colors.grey)),
-                      trailing: const Icon(Icons.delete_rounded, color: Colors.grey, size: 24),
+              child: activities.isEmpty
+                  ? const Center(
+                      child: Text('No activities recorded yet.', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: activities.length,
+                      itemBuilder: (context, index) {
+                        final activity = activities[index];
+                        return Card(
+                          color: Colors.white,
+                          elevation: 0,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          child: ListTile(
+                            title: Text(activity.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            subtitle: Text(_formatTimestamp(activity.createdAt), style: const TextStyle(color: Colors.grey)),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete_rounded, color: Colors.grey, size: 24),
+                              onPressed: () {
+                                store.deleteActivity(activity.id);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Deleted "${activity.title}"'),
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),
@@ -423,7 +487,7 @@ class ActivityLogPageWidget extends StatelessWidget {
   }
 }
 
-// ==================== ADD ACTIVITY BOTTOM SHEET ====================
+// ==================== ADD ACTIVITY BOTTOM SHEET (SAVES TO GLOBAL STORE) ====================
 class AddActivityBottomSheetWidget extends StatefulWidget {
   const AddActivityBottomSheetWidget({super.key});
 
@@ -491,8 +555,18 @@ class _AddActivityBottomSheetWidgetState extends State<AddActivityBottomSheetWid
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               onPressed: () {
+                final title = _titleController.text.trim();
+                if (title.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter an activity title')),
+                  );
+                  return;
+                }
+                
+                ActivityDataStore.instance.addActivity(title, _descriptionController.text.trim());
+                
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Activity "${_titleController.text}" saved!')),
+                  SnackBar(content: Text('Activity "$title" saved!')),
                 );
                 Navigator.pop(context);
               },
@@ -505,19 +579,15 @@ class _AddActivityBottomSheetWidgetState extends State<AddActivityBottomSheetWid
   }
 }
 
-// ==================== ANALYTICS PAGE ====================
+// ==================== ANALYTICS PAGE (DYNAMIC DATA) ====================
 class AnalyticsPageWidget extends StatelessWidget {
   const AnalyticsPageWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final mockData = [
-      {'createdAt': '2026-10-27T10:00:00Z'},
-      {'createdAt': '2026-10-26T14:30:00Z'},
-      {'createdAt': '2026-10-26T09:15:00Z'},
-    ];
-    final numericList = getNumericList(mockData);
-    final activeDaysCount = calculateActiveDays(mockData) ?? 0;
+    final store = ActivityDataStore.instance;
+    final totalActivities = store.activities.length;
+    final activeDaysCount = store.uniqueActiveDays;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF1F4F8),
@@ -565,7 +635,7 @@ class AnalyticsPageWidget extends StatelessWidget {
                           children: [
                             const Text('Total Activities', style: TextStyle(color: Colors.grey, fontSize: 14)),
                             const SizedBox(height: 4),
-                            Text('${numericList.length}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                            Text('$totalActivities', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -602,7 +672,7 @@ class AnalyticsPageWidget extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      'Calculated Active Days: $activeDaysCount',
+                      'Calculated Active Days: $activeDaysCount | Total: $totalActivities',
                       style: const TextStyle(color: Colors.grey, fontSize: 16),
                     ),
                   ),
