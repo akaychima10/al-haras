@@ -382,6 +382,88 @@ class ActivityLogPageWidget extends StatelessWidget {
   }
 }
 
+// ==================== ADD ACTIVITY BOTTOM SHEET ====================
+class AddActivityBottomSheetWidget extends StatefulWidget {
+  const AddActivityBottomSheetWidget({super.key});
+
+  @override
+  State<AddActivityBottomSheetWidget> createState() => _AddActivityBottomSheetWidgetState();
+}
+
+class _AddActivityBottomSheetWidgetState extends State<AddActivityBottomSheetWidget> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 400,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            SizedBox(
+              width: 250,
+              child: TextField(
+                controller: _titleController,
+                decoration: InputDecoration(
+                  labelText: 'Title',
+                  hintText: 'Activity title',
+                  isDense: true,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: 250,
+              child: TextField(
+                controller: _descriptionController,
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                  hintText: 'Activity details',
+                  isDense: true,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                minimumSize: const Size(200, 44),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Activity "${_titleController.text}" saved!')),
+                );
+                Navigator.pop(context);
+              },
+              child: const Text('Save Activity', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ==================== ANALYTICS PAGE ====================
 class AnalyticsPageWidget extends StatelessWidget {
   const AnalyticsPageWidget({super.key});
@@ -402,11 +484,12 @@ class AnalyticsPageWidget extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
             context: context,
-            builder: (context) => Container(
-              padding: const EdgeInsets.all(24),
-              height: 200,
-              child: const Center(child: Text('Add Activity Bottom Sheet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+            builder: (context) => Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: const AddActivityBottomSheetWidget(),
             ),
           );
         },
